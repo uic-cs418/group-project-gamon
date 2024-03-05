@@ -12,7 +12,8 @@ Group Gamon
 ## Datasets
 
 Links to the datasets within the datasets folder:
-Dataset 1-
+
+<br>Dataset 1-
 https://data.world/maheepmahat/data-of-usage-of-social-media-by-students-between-age-17-22
 
 Data included:
@@ -25,7 +26,7 @@ Data included:
 
 Overall this dataset provides data on specific negative instances the individuals have encountered on social media.
 
-Dataset 2 -
+<br>Dataset 2 -
 https://www.pewresearch.org/internet/dataset/teens-and-tech-survey-2018/
 
 Data included:
@@ -37,7 +38,7 @@ Data included:
 
 Overall this dataset has in depth data on specifics of how minors view/interact with social media in lots of specific scenarios. It also gives data on their social presence outside of social media.
 
-Dataset 3 -
+<br>Dataset 3 -
 https://www.pewresearch.org/internet/dataset/jan-3-10-2018-core-trends-survey/ 
 
 Data included:
