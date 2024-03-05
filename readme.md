@@ -1,6 +1,6 @@
 # Project Name
 
-Exploring Social Media's Impact on Daily Life\n
+Exploring Social Media's Impact on Daily Life
 Group Gamon
 
 ## Table of Contents
@@ -14,7 +14,7 @@ Group Gamon
 ## Datasets
 
 https://data.world/maheepmahat/data-of-usage-of-social-media-by-students-between-age-17-22
-\n
+
 https://www.pewresearch.org/internet/dataset/teens-and-tech-survey-2018/
-\n
+
 https://www.pewresearch.org/internet/dataset/jan-3-10-2018-core-trends-survey/ 
