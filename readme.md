@@ -1,6 +1,4 @@
-# Project Name
-
-Exploring Social Media's Impact on Daily Life
+# Exploring Social Media's Impact on Daily Life
 Group Gamon
 
 ## Table of Contents
