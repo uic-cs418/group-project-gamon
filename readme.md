@@ -11,8 +11,6 @@ Group Gamon
 
 ## Datasets
 
-Links to the datasets within the datasets folder:
-
 <br>Dataset 1-
 https://data.world/maheepmahat/data-of-usage-of-social-media-by-students-between-age-17-22
 
