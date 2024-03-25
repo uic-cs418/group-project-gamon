@@ -50,3 +50,9 @@ Data included:
 <br>-Amount of reading 
 
 Overall this dataset shows surface level opinions on who uses the internet and their general opinions on it.
+
+<br>Dataset 4 -
+https://www.datafiles.samhsa.gov/dataset/national-survey-drug-use-and-health-2022-nsduh-2022-ds0001
+
+Data included:
+<br>Honestly theres too much data to cover but as the name suggests, it includes demographic data on heatlth/drug use for 2022 for US civilian population ages 12+
