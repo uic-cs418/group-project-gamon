@@ -11,7 +11,7 @@ Group Gamon
 
 ## Datasets
 
-<br>Dataset 1-
+<br>Dataset 1: Social Medai Usage Ages 17-22 -
 https://data.world/maheepmahat/data-of-usage-of-social-media-by-students-between-age-17-22
 
 Data included:
@@ -24,7 +24,7 @@ Data included:
 
 Overall this dataset provides data on specific negative instances the individuals have encountered on social media.
 
-<br>Dataset 2 -
+<br>Dataset 2: Teens and Tech 2018 -
 https://www.pewresearch.org/internet/dataset/teens-and-tech-survey-2018/
 
 Data included:
@@ -36,7 +36,7 @@ Data included:
 
 Overall this dataset has in depth data on specifics of how minors view/interact with social media in lots of specific scenarios. It also gives data on their social presence outside of social media.
 
-<br>Dataset 3 -
+<br>Dataset 3: Core Trends 2018 -
 https://www.pewresearch.org/internet/dataset/jan-3-10-2018-core-trends-survey/ 
 
 Data included:
@@ -51,7 +51,17 @@ Data included:
 
 Overall this dataset shows surface level opinions on who uses the internet and their general opinions on it.
 
-<br>Dataset 4 -
+<br>Dataset 4: Core Trends 2019 -
+https://www.pewresearch.org/internet/dataset/core-trends-survey/
+
+Same as Core trends 2018
+
+<br>Dataset 5: Core Trends 2021 -
+https://www.pewresearch.org/internet/dataset/2021-core-trends-survey/
+
+Same as Core Trends 2018
+
+<br>Dataset 6 NSDUH 2022 -
 https://www.datafiles.samhsa.gov/dataset/national-survey-drug-use-and-health-2022-nsduh-2022-ds0001
 
 Data included:
