@@ -38,3 +38,41 @@ def getWantedColumns(df, cols):
     df_copy = df_copy[cols]
 
     return df_copy
+
+def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
+    """
+    This takes two datasets, matches the age column values and merges them
+    *This may need to be updated to be more generalized
+
+    df1: left dataframe
+    df2: right dataframe
+    year: which year is the dataset from (int)
+    returns merged dataframe
+    """
+
+    #This dictionart works for Core Trends 2018 and 2019
+    age_mapping_CoreToNSDUH2018 = { 12: 1, 13: 2, 14: 3, 15: 4, 16: 5, 17: 6, 18: 7, 19: 8, 20: 9, 21: 10, 22: 11, 23: 11, 24: 12, 25: 12, 
+                                   **{age: 13 for age in range(26, 30)}, **{age: 14 for age in range(30, 35)}, **{age: 15 for age in range(35, 50)}, **{age: 16 for age in range(50, 65)}, **{age: 17 for age in range(65, 100)}
+    }
+
+    age_mapping_CoreToNSDUH2021 = {12: 1, 13: 1, 14: 2, 15: 2, 16: 3, 17: 3, 18: 4, 19: 4, 20: 4, 21: 5, 22: 5, 23: 5, 24: 6, 25: 6,
+                                   **{age: 7 for age in range(26, 29)}, **{age: 8 for age in range(30, 34)}, **{age: 9 for age in range(35, 49)}, **{age: 10 for age in range(50, 64)}, **{age: 11 for age in range(65, 100)}
+    }
+
+    if year == 2018 or year == 2019:
+        coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2018)
+        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE2', how='right')
+
+    elif year == 2021:
+        coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2021)
+        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE3', how='right')
+    else:
+        print("Invalid year parameter")
+        return
+    
+    #Convert all values to numeric, 
+    #eliminate anything over 85 since those values are either refused or useless according to NSDUH
+    merged = merged.apply(pd.to_numeric, errors='coerce')
+    merged = merged[merged < 85] 
+
+    return merged
