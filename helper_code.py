@@ -13,9 +13,9 @@ def readInData(path, type):
     returns a dataframe 
     """
 
-    if type == "txt":
+    if type == "txt" or type == "tsv":
         data = pd.read_table(path)
-    elif type == "csv" or type == "tsv":
+    elif type == "csv":
         data = pd.read_csv(path)
     else:
         print("Unsupported data format")
@@ -27,7 +27,7 @@ def getWantedColumns(df, cols):
     """
     One part of data cleaning process, getting only the necessary columns from the dataset,
     and returning a copy of the dataframe so the original one stays intact
-    
+
     df: the dataframe you want to get the columns for (dataframe)
     cols: a list of strings of the columns you want to keep (list: string)
     
