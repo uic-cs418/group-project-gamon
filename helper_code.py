@@ -61,10 +61,13 @@ def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
 
     if year == 2018 or year == 2019:
         coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2018)
-        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE2', how='right')
+        coreTrends_df['age']  = coreTrends_df['age'].astype('Int64')
+        # NSDUH_df['AGE2']  = NSDUH_df['AGE2'].astype('Int64')
+        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE2', how='left')
 
     elif year == 2021:
         coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2021)
+        coreTrends_df['age']  = coreTrends_df['age'].astype('Int64')
         merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE3', how='right')
     else:
         print("Invalid year parameter")
