@@ -39,6 +39,19 @@ def getWantedColumns(df, cols):
 
     return df_copy
 
+def cleanUpCoreTrends(df):
+
+    #Drop column because all values are empty
+    df = df.drop(columns=['sns2a'])
+    try:
+        df = pd.melt(df, id_vars=['age'], value_vars=["web1a", "web1b", "web1c", "web1d", "web1e", "sns2b", "sns2c", "sns2d", "sns2e","sex"])
+    except:
+        df = pd.melt(df, id_vars=['age'], value_vars=["web1a", "web1b", "web1c", "web1d", "web1e", "sns2b", "sns2c", "sns2d", "sns2e","gender"])
+
+    df = df.dropna()
+
+    return df
+
 def cleanUpNSDUH(df):
     """
     Main code to clean up NSDUH dataset specifically
@@ -104,10 +117,5 @@ def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
     else:
         print("Invalid year parameter")
         return
-    
-    #Convert all values to numeric, 
-    #eliminate anything over 85 since those values are either refused or useless according to NSDUH
-    # merged = merged.apply(pd.to_numeric, errors='coerce')
-    # merged = merged[merged < 85] 
 
     return merged
