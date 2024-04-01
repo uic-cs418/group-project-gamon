@@ -45,7 +45,7 @@ def cleanUpNSDUH(df):
 
     df: NSDUH dataframe
 
-    returns cleaned up dataframe
+    returns cleaned up dataframe in long format
     """
 
     #Convert values from strings to numeric
@@ -54,10 +54,22 @@ def cleanUpNSDUH(df):
     #Remove values over 85 since those are Refused or otherwise useless
     df = df[df < 85]
 
-    #Drop any rows where all values are NaN
-    df.dropna(axis=0, how='all', inplace=True)
+    #Convert to long form
+    try:
+        longForm = pd.melt(df, id_vars=['AGE2'], value_vars=['IRSEX', 'AUINPYR', 'AURXYR', 'YEATNDYR', 'YESCHFLT',
+            'YEPRBSLV', 'DSTNRV30', 'DSTHOP30', 'DSTCHR30', 'DSTNGD30', 'DSTWORST',
+            'DSTNRV12', 'DSTHOP12', 'DSTCHR12', 'DSTNGD12', 'IMPCONCN', 'IMPGOUT',
+            'IMPPEOP', 'IMPSOC', 'IMPSOCM', 'SUICTHNK', 'ADDPREV'])
+    except:
+        longForm = pd.melt(df, id_vars=['AGE3'], value_vars=['IRSEX', 'AUINPYR', 'AURXYR', 'YEATNDYR', 'YESCHFLT',
+            'YEPRBSLV', 'DSTNRV30', 'DSTHOP30', 'DSTCHR30', 'DSTNGD30', 'DSTWORST',
+            'DSTNRV12', 'DSTHOP12', 'DSTCHR12', 'DSTNGD12', 'IMPCONCN', 'IMPGOUT',
+            'IMPPEOP', 'IMPSOC', 'IMPSOCM', 'SUICTHNK', 'ADDPREV'])
 
-    return df
+    #Drop any rows where all values are NaN
+    longForm = longForm.dropna()
+
+    return longForm
 
 def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
     """
