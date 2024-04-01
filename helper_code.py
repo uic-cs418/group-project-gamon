@@ -39,6 +39,26 @@ def getWantedColumns(df, cols):
 
     return df_copy
 
+def cleanUpNSDUH(df):
+    """
+    Main code to clean up NSDUH dataset specifically
+
+    df: NSDUH dataframe
+
+    returns cleaned up dataframe
+    """
+
+    #Convert values from strings to numeric
+    df = df.apply(pd.to_numeric, errors='coerce')
+
+    #Remove values over 85 since those are Refused or otherwise useless
+    df = df[df < 85]
+
+    #Drop any rows where all values are NaN
+    df.dropna(axis=0, how='all', inplace=True)
+
+    return df
+
 def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
     """
     This takes two datasets, matches the age column values and merges them
@@ -75,7 +95,7 @@ def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
     
     #Convert all values to numeric, 
     #eliminate anything over 85 since those values are either refused or useless according to NSDUH
-    merged = merged.apply(pd.to_numeric, errors='coerce')
-    merged = merged[merged < 85] 
+    # merged = merged.apply(pd.to_numeric, errors='coerce')
+    # merged = merged[merged < 85] 
 
     return merged
