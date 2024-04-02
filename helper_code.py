@@ -48,26 +48,13 @@ def cleanUpCoreTrends(df, id, values, year):
     returns cleaned up dataframe in long form
     """
 
-    # age_mapping_CoreToNSDUH2018 = { 12: 1, 13: 2, 14: 3, 15: 4, 16: 5, 17: 6, 18: 7, 19: 8, 20: 9, 21: 10, 22: 11, 23: 11, 24: 12, 25: 12}
-    # age_mapping_CoreToNSDUH2018.update({age: 13 for age in range(26, 30)})
-    # age_mapping_CoreToNSDUH2018.update({age: 14 for age in range(30, 35)})
-    # age_mapping_CoreToNSDUH2018.update({age: 15 for age in range(35, 50)})
-    # age_mapping_CoreToNSDUH2018.update({age: 16 for age in range(50, 65)})
-    # age_mapping_CoreToNSDUH2018.update({age: 17 for age in range(65, 100)})
-
-    # print(age_mapping_CoreToNSDUH2018)
-
-    # age_mapping_CoreToNSDUH2021 = {12: 1, 13: 1, 14: 2, 15: 2, 16: 3, 17: 3, 18: 4, 19: 4, 20: 4, 21: 5, 22: 5, 23: 5, 24: 6, 25: 6}
-    # age_mapping_CoreToNSDUH2021.update({age: 7 for age in range(26, 29)})
-    # age_mapping_CoreToNSDUH2021.update({age: 8 for age in range(30, 34)})
-    # age_mapping_CoreToNSDUH2021.update({age: 9 for age in range(35, 49)})
-    # age_mapping_CoreToNSDUH2021.update({age: 10 for age in range(50, 64)})
-    # age_mapping_CoreToNSDUH2021.update({age: 11 for age in range(65, 100)})
-
     #Drop column because all values are empty
     df = df.drop(columns=['sns2a'])
 
-    df['age'] = pd.cut(df['age'], bins=[0, 25, 34, 49, 64, float('inf')],
+    #Remove refused ages
+    df = df[df['age'] < 98]
+
+    df['age'] = pd.cut(df['age'], bins=[0, 25, 34, 49, 64, 97],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
 
     try:
@@ -100,17 +87,11 @@ def cleanUpNSDUH(df, id, values):
     #Remove values over 85 since those are Refused or otherwise useless
     df = df[df < 85]
 
-    # 18: 7, 19: 8, 20: 9, 21: 10, 22: 11, 23: 11, 24: 12, 25: 12}
-    # age_mapping_CoreToNSDUH2018.update({age: 13 for age in range(26, 30)})
-    # age_mapping_CoreToNSDUH2018.update({age: 14 for age in range(30, 35)})
-    # age_mapping_CoreToNSDUH2018.update({age: 15 for age in range(35, 50)})
-    # age_mapping_CoreToNSDUH2018.update({age: 16 for age in range(50, 65)})
-    # age_mapping_CoreToNSDUH2018.update({age: 17 for age in range(65, 100)})
-
     holder = ['IRSEX', 'AUINPYR', 'AURXYR', 'YEATNDYR', 'YESCHFLT',
             'YEPRBSLV', 'DSTNRV30', 'DSTHOP30', 'DSTCHR30', 'DSTNGD30', 'DSTWORST',
             'DSTNRV12', 'DSTHOP12', 'DSTCHR12', 'DSTNGD12', 'IMPCONCN', 'IMPGOUT',
             'IMPPEOP', 'IMPSOC', 'IMPSOCM', 'SUICTHNK', 'ADDPREV']
+    
     #Convert to long form
     try:
         df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 12, 14, 15, 16, float('inf')],
