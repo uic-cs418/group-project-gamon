@@ -39,14 +39,45 @@ def getWantedColumns(df, cols):
 
     return df_copy
 
-def cleanUpCoreTrends(df):
+def cleanUpCoreTrends(df, id, values, year):
+    """
+    df: Core Trends dataframe (Dataframe)
+    id = the columns to include in id_vars for melting as a list of strings
+    values: columns to include in variable for value_vars as list of strings
+    year: year of dataset as int
+    returns cleaned up dataframe in long form
+    """
+
+    # age_mapping_CoreToNSDUH2018 = { 12: 1, 13: 2, 14: 3, 15: 4, 16: 5, 17: 6, 18: 7, 19: 8, 20: 9, 21: 10, 22: 11, 23: 11, 24: 12, 25: 12}
+    # age_mapping_CoreToNSDUH2018.update({age: 13 for age in range(26, 30)})
+    # age_mapping_CoreToNSDUH2018.update({age: 14 for age in range(30, 35)})
+    # age_mapping_CoreToNSDUH2018.update({age: 15 for age in range(35, 50)})
+    # age_mapping_CoreToNSDUH2018.update({age: 16 for age in range(50, 65)})
+    # age_mapping_CoreToNSDUH2018.update({age: 17 for age in range(65, 100)})
+
+    # print(age_mapping_CoreToNSDUH2018)
+
+    # age_mapping_CoreToNSDUH2021 = {12: 1, 13: 1, 14: 2, 15: 2, 16: 3, 17: 3, 18: 4, 19: 4, 20: 4, 21: 5, 22: 5, 23: 5, 24: 6, 25: 6}
+    # age_mapping_CoreToNSDUH2021.update({age: 7 for age in range(26, 29)})
+    # age_mapping_CoreToNSDUH2021.update({age: 8 for age in range(30, 34)})
+    # age_mapping_CoreToNSDUH2021.update({age: 9 for age in range(35, 49)})
+    # age_mapping_CoreToNSDUH2021.update({age: 10 for age in range(50, 64)})
+    # age_mapping_CoreToNSDUH2021.update({age: 11 for age in range(65, 100)})
 
     #Drop column because all values are empty
     df = df.drop(columns=['sns2a'])
+
+    df['age'] = pd.cut(df['age'], bins=[0, 24, 34, 44, 54, 64, float('inf')],
+                       labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
+
     try:
-        df = pd.melt(df, id_vars=['age'], value_vars=["web1a", "web1b", "web1c", "web1d", "web1e", "sns2b", "sns2c", "sns2d", "sns2e","sex"])
+        if year == 2021:
+            pass
+        df = pd.melt(df, id_vars=id, value_vars=values)
+        # df['age'] = df['age'].map(age_mapping_CoreToNSDUH2018)
     except:
-        df = pd.melt(df, id_vars=['age'], value_vars=["web1a", "web1b", "web1c", "web1d", "web1e", "sns2b", "sns2c", "sns2d", "sns2e","gender"])
+        df = pd.melt(df, id_vars=id, value_vars=values)
+        # df['age'] = df['age'].map(age_mapping_CoreToNSDUH2021)
 
     df = df.dropna()
 
