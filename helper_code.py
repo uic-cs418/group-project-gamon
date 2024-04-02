@@ -113,15 +113,17 @@ def cleanUpNSDUH(df, id, values):
             'IMPPEOP', 'IMPSOC', 'IMPSOCM', 'SUICTHNK', 'ADDPREV']
     #Convert to long form
     try:
-        df['age'] = pd.cut(df['AGE2'], bins=[0, 11, 14, 15, 16, 17, float('inf')],
-                       labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
+        df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 12, 14, 15, 16, float('inf')],
+                       labels=['18-25', '26-34', '35-49', '50-64', '65+'])
         
         longForm = pd.melt(df, id_vars=id, value_vars=values)
+        longForm=longForm.rename(columns={'AGE2': 'age'})
     except:
-        df['age'] = pd.cut(df['AGE3'], bins=[0, 11, 14, 15, 16, 17, float('inf')],
-                       labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
+        df['AGE3'] = pd.cut(df['AGE3'], bins=[0, 6, 8, 9, 10, float('inf')],
+                       labels=['18-25', '26-34', '35-49', '50-64', '65+'])
 
         longForm = pd.melt(df, id_vars=id, value_vars=values)
+        longForm=longForm.rename(columns={'AGE3': 'age'})
 
     #Drop any rows where all values are NaN
     longForm = longForm.dropna()
