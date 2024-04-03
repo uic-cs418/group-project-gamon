@@ -39,7 +39,7 @@ def getWantedColumns(df, cols):
 
     return df_copy
 
-def cleanUpCoreTrends(df, id, values, year, dropNA):
+def cleanUpCoreTrends(df, id, values):
     """
     df: Core Trends dataframe (Dataframe)
     id = the columns to include in id_vars for melting as a list of strings
@@ -68,12 +68,11 @@ def cleanUpCoreTrends(df, id, values, year, dropNA):
     df['value'] = pd.cut(df['value'], bins=[0,1,2],
                     labels=['Uses Social Media', 'Doesnt Use Social Media'])
 
-    if dropNA:
-        df = df.dropna()
+    df = df.dropna()
 
     return df
 
-def cleanUpNSDUH(df, id, values, year):
+def cleanUpNSDUH(df, id, values):
     """
     Main code to clean up NSDUH dataset specifically
 
@@ -90,6 +89,7 @@ def cleanUpNSDUH(df, id, values, year):
     #Remove values over 85 since those are Refused or otherwise useless
     df = df[df < 85]
 
+    #Simply here for easier finding variables when experimenting
     holder = ['IRSEX', 'AUINPYR', 'AURXYR', 'YEATNDYR', 'YESCHFLT',
             'YEPRBSLV', 'DSTNRV30', 'DSTHOP30', 'DSTCHR30', 'DSTNGD30', 'DSTWORST',
             'DSTNRV12', 'DSTHOP12', 'DSTCHR12', 'DSTNGD12', 'IMPCONCN', 'IMPGOUT',
