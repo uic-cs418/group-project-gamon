@@ -52,20 +52,21 @@ def cleanUpCoreTrends(df, id, values, year, dropNA):
     #Drop column because all values are empty
     df = df.drop(columns=['sns2a'])
 
+    df = df.apply(pd.to_numeric, errors='coerce')
+
     #Remove refused ages
     df = df[df['age'] < 98]
 
+    #Put age into bins
     df['age'] = pd.cut(df['age'], bins=[0, 26, 35, 50, 65, 97],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
 
-    try:
-        if year == 2021:
-            pass
-        df = pd.melt(df, id_vars=id, value_vars=values)
-        # df['age'] = df['age'].map(age_mapping_CoreToNSDUH2018)
-    except:
-        df = pd.melt(df, id_vars=id, value_vars=values)
-        # df['age'] = df['age'].map(age_mapping_CoreToNSDUH2021)
+    #Convert to long form
+    df = pd.melt(df, id_vars=id, value_vars=values)
+
+    #Put value into bin, useful for labelling later
+    df['value'] = pd.cut(df['value'], bins=[0,1,2],
+                    labels=['Uses Social Media', 'Doesnt Use Social Media'])
 
     if dropNA:
         df = df.dropna()
@@ -131,7 +132,7 @@ def cleanUpNSDUH(df, id, values, year):
     return longForm
 
 
-def getPercentage(df, filterVal, groupByCol):
+def getPercentage(df, filterVal, groupByCol, year):
     """
     Get percentage for a value in a group
 
@@ -155,4 +156,14 @@ def getPercentage(df, filterVal, groupByCol):
 
     finalDf = perc.reset_index()
 
+    dataLabel = f"{str(year)} - {filterVal}"
+    finalDf['dataset'] = dataLabel
+
     return finalDf
+
+
+def allFuncsCoreTrends():
+    pass
+
+def allFuncsNSDUH():
+    pass
