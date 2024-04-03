@@ -39,12 +39,13 @@ def getWantedColumns(df, cols):
 
     return df_copy
 
-def cleanUpCoreTrends(df, id, values, year):
+def cleanUpCoreTrends(df, id, values, year, dropNA):
     """
     df: Core Trends dataframe (Dataframe)
     id = the columns to include in id_vars for melting as a list of strings
     values: columns to include in variable for value_vars as list of strings
     year: year of dataset as int
+    dropNA: boolean to whether you want to drop NaN values
     returns cleaned up dataframe in long form
     """
 
@@ -54,7 +55,7 @@ def cleanUpCoreTrends(df, id, values, year):
     #Remove refused ages
     df = df[df['age'] < 98]
 
-    df['age'] = pd.cut(df['age'], bins=[0, 25, 34, 49, 64, 97],
+    df['age'] = pd.cut(df['age'], bins=[0, 26, 35, 50, 65, 97],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
 
     try:
@@ -66,18 +67,19 @@ def cleanUpCoreTrends(df, id, values, year):
         df = pd.melt(df, id_vars=id, value_vars=values)
         # df['age'] = df['age'].map(age_mapping_CoreToNSDUH2021)
 
-    df = df.dropna()
+    if dropNA:
+        df = df.dropna()
 
     return df
 
-def cleanUpNSDUH(df, id, values):
+def cleanUpNSDUH(df, id, values, year):
     """
     Main code to clean up NSDUH dataset specifically
 
     df: NSDUH dataframe
     id = the columns to include in id_vars for melting as a list of strings
     values: columns to include in variable for value_vars as list of strings
-
+    year: year of dataset as int
     returns cleaned up dataframe in long format
     """
 
@@ -94,14 +96,31 @@ def cleanUpNSDUH(df, id, values):
     
     #Convert to long form
     try:
-        df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 12, 14, 15, 16, float('inf')],
+        df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
+        df['DSTCHR30'] = pd.cut(df['DSTCHR30'], bins=[0, 4, 5],
+                       labels=['some depressed', 'little-no depression'])
+        df['IMPCONCN'] = pd.cut(df['IMPCONCN'], bins=[0, 2, 5],
+                       labels=['No Concentration Issues', 'Concentration Issues'])
+        df['DSTNRV12'] = pd.cut(df['DSTNRV12'], bins=[0, 4, 5],
+                       labels=['Nervous', 'Not Nervous'])
+        df['DSTCHR12'] = pd.cut(df['DSTCHR12'], bins=[0, 4, 5],
+                       labels=['Depressed', 'Not Depressed'])
         
         longForm = pd.melt(df, id_vars=id, value_vars=values)
         longForm=longForm.rename(columns={'AGE2': 'age'})
     except:
-        df['AGE3'] = pd.cut(df['AGE3'], bins=[0, 6, 8, 9, 10, float('inf')],
+        df['AGE3'] = pd.cut(df['AGE3'], bins=[0, 7, 9, 10, 11, float('inf')],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
+        #Create buckets, at least some depression and little to no depression
+        df['DSTCHR30'] = pd.cut(df['DSTCHR30'], bins=[0, 1, 4],
+                       labels=['some depressed', 'little-no depression'])
+        df['IMPCONCN'] = pd.cut(df['IMPCONCN'], bins=[0, 2, 5],
+                       labels=['No Concentration Issues', 'Concentration Issues'])
+        df['DSTNRV12'] = pd.cut(df['DSTNRV12'], bins=[0, 4, 5],
+                       labels=['Nervous', 'Not Nervous'])
+        df['DSTCHR12'] = pd.cut(df['DSTCHR12'], bins=[0, 4, 5],
+                       labels=['Depressed', 'Not Depressed'])
 
         longForm = pd.melt(df, id_vars=id, value_vars=values)
         longForm=longForm.rename(columns={'AGE3': 'age'})
@@ -110,39 +129,3 @@ def cleanUpNSDUH(df, id, values):
     longForm = longForm.dropna()
 
     return longForm
-
-def convertAndMergeCoreTrendstoNSDUH(coreTrends_df, NSDUH_df, year):
-    """
-    This takes two datasets, matches the age column values and merges them
-    *This may need to be updated to be more generalized
-
-    df1: left dataframe
-    df2: right dataframe
-    year: which year is the dataset from (int)
-    returns merged dataframe
-    """
-
-    #This dictionart works for Core Trends 2018 and 2019
-    age_mapping_CoreToNSDUH2018 = { 12: 1, 13: 2, 14: 3, 15: 4, 16: 5, 17: 6, 18: 7, 19: 8, 20: 9, 21: 10, 22: 11, 23: 11, 24: 12, 25: 12, 
-                                   **{age: 13 for age in range(26, 30)}, **{age: 14 for age in range(30, 35)}, **{age: 15 for age in range(35, 50)}, **{age: 16 for age in range(50, 65)}, **{age: 17 for age in range(65, 100)}
-    }
-
-    age_mapping_CoreToNSDUH2021 = {12: 1, 13: 1, 14: 2, 15: 2, 16: 3, 17: 3, 18: 4, 19: 4, 20: 4, 21: 5, 22: 5, 23: 5, 24: 6, 25: 6,
-                                   **{age: 7 for age in range(26, 29)}, **{age: 8 for age in range(30, 34)}, **{age: 9 for age in range(35, 49)}, **{age: 10 for age in range(50, 64)}, **{age: 11 for age in range(65, 100)}
-    }
-
-    if year == 2018 or year == 2019:
-        coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2018)
-        coreTrends_df['age']  = coreTrends_df['age'].astype('Int64')
-        # NSDUH_df['AGE2']  = NSDUH_df['AGE2'].astype('Int64')
-        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE2', how='left')
-
-    elif year == 2021:
-        coreTrends_df['age'] = coreTrends_df['age'].map(age_mapping_CoreToNSDUH2021)
-        coreTrends_df['age']  = coreTrends_df['age'].astype('Int64')
-        merged = pd.merge(coreTrends_df, NSDUH_df, left_on='age', right_on='AGE3', how='right')
-    else:
-        print("Invalid year parameter")
-        return
-
-    return merged
