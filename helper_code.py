@@ -129,3 +129,30 @@ def cleanUpNSDUH(df, id, values, year):
     longForm = longForm.dropna()
 
     return longForm
+
+
+def getPercentage(df, filterVal, groupByCol):
+    """
+    Get percentage for a value in a group
+
+    df: dataframe to get percentage for
+    filterVal: value in column you want percentage for. e.g. "yes"
+    groupByCol: Column you want to group by. e.g. age
+    """
+
+    #Total instances in the group
+    totalCount = df.groupby([groupByCol]).agg(count=('value', 'count'))
+
+    #Get only the data you want a percentage for
+    filtered = df[df['value'] == filterVal]
+    
+    #Get count for the filtered results
+    filteredCount = filtered.groupby([groupByCol]).agg(count=('value', 'count'))
+
+    #Calculate percentage
+    perc = pd.merge(totalCount, filteredCount, left_on='age', right_index=True, suffixes=('_total', '_uses'))
+    perc['percentage'] = (perc['count_uses'] / perc['count_total']) * 100
+
+    finalDf = perc.reset_index()
+
+    return finalDf
