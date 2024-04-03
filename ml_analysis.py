@@ -26,7 +26,7 @@ def predictUsageOfAgeGroups(data: pd.DataFrame):
     data['age'] = pd.cut(data['age'], bins=[0, 24, 34, 44, 54, 64, float('inf')],
                        labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
     selected = ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'web1f', 'web1g',
-                'web1h', 'web1j', 'sex']
+                'web1h', 'sex']
     X = data[selected]
     y = data['age']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
@@ -77,9 +77,10 @@ nsduh2018 = pd.read_csv('datasets/January 3-10, 2018 - Core Trends Survey/Januar
 nsduh2019 = pd.read_csv('datasets/January-8-February-7-2019-Core-Trends-Survey-SPSS/January 8-February 7, 2019 - Core Trends Survey - CSV.csv')
 nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
 
-merged = pd.concat([nsduh2018, nsduh2019, nsduh2021], axis=0)
-cleaned_data = to_numeric(merged, 'intfreq')
-merged.info()
-cleaned_data.value_counts()
-nsduh2018.info()
-feature_selection(nsduh2018, pd.Series(nsduh2018['intfreq']))
+if __name__ == '__main__':
+    merged = pd.concat([nsduh2018, nsduh2019, nsduh2021], axis=0)
+    cleaned_data = to_numeric(merged, 'intfreq')
+    merged.info()
+    cleaned_data.value_counts()
+    nsduh2018.info()
+    feature_selection(nsduh2018, pd.Series(nsduh2018['intfreq']))
