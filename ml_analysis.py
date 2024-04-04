@@ -49,8 +49,9 @@ def predictUsageOfAgeGroups(data: pd.DataFrame):
     print("Classification Report:")
     print(classification_report(y_test, y_pred))
 
-    print("Confusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
+    # Commenting out for the purpose of space on notebook
+    # print("Confusion Matrix:")
+    # print(confusion_matrix(y_test, y_pred))
 
 
 def feature_selection(X: pd.DataFrame, y: pd.Series, n_features=None):
@@ -99,8 +100,9 @@ def randomForest(data: pd.DataFrame, target):
 
     print(f'Accuracy: {accuracy * 100:.2f}%')
 
-    cm = confusion_matrix(y_test, y_pred)
-    print(f'Confusion Matrix:\n{cm}')
+    # Commenting out for the sake of space in notebook
+    # cm = confusion_matrix(y_test, y_pred)
+    # print(f'Confusion Matrix:\n{cm}')
 
     cr = classification_report(y_test, y_pred)
     print(f'Classification report:\n{cr}')
