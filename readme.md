@@ -29,10 +29,10 @@ https://www.pewresearch.org/internet/dataset/teens-and-tech-survey-2018/
 
 Data included:
 <br>-Age demographics (13-17)
-<br>-Amount/quality of Social presence in the real world 
-<br>-Amount/type of internet/technological use
+<br>-Amount/Quality of Social presence in the real world 
+<br>-Amount/Type of internet/technological use
 <br>-Amount/Quality of interaction on Social media
-<br>-How social media effects their life outside of the internet
+<br>-How social media affects their life outside of the internet
 
 Overall this dataset has in depth data on specifics of how minors view/interact with social media in lots of specific scenarios. It also gives data on their social presence outside of social media.
 
@@ -65,7 +65,7 @@ Same as above
 https://www.datafiles.samhsa.gov/dataset/national-survey-drug-use-and-health-2022-nsduh-2022-ds0001
 
 Data included:
-<br>Honestly theres too much data to cover but as the name suggests, it includes demographic data on heatlth/drug use for 2022 for US civilian population ages 12+
+<br>Honestly there's too much data to cover but as the name suggests, it includes demographic data on health/drug use for 2022 for US civilian population ages 12+
 
 <br>Dataset 7: NSDUH 2021 -
 https://www.datafiles.samhsa.gov/dataset/national-survey-drug-use-and-health-2021-nsduh-2021-ds0001
