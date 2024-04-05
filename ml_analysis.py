@@ -46,8 +46,8 @@ def predictUsageOfAgeGroups(data: pd.DataFrame):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy: {accuracy:.2f}")
 
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
+    # print("Classification Report:")
+    # print(classification_report(y_test, y_pred))
 
     # Commenting out for the purpose of space on notebook
     # print("Confusion Matrix:")
@@ -104,8 +104,8 @@ def randomForest(data: pd.DataFrame, target):
     # cm = confusion_matrix(y_test, y_pred)
     # print(f'Confusion Matrix:\n{cm}')
 
-    cr = classification_report(y_test, y_pred)
-    print(f'Classification report:\n{cr}')
+    # cr = classification_report(y_test, y_pred, zero_division=1)
+    # print(f'Classification report:\n{cr}')
 
 
 # Pretty much playground code, ignore for now
