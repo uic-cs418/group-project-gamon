@@ -7,7 +7,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from helper_code import readInAndGetWantedColumns
 
 # INTMOB - Access internet on a mobile device of somesort - (1 Yes, 2 No)
 # INTFREQ - Internet Frequency - 1 Constantly, 2 Several Times, 3 About once a day, 4 Several times a week, 5 Less often, 6 Dont know, Refused
@@ -107,6 +108,71 @@ def randomForest(data: pd.DataFrame, target):
     # cr = classification_report(y_test, y_pred, zero_division=1)
     # print(f'Classification report:\n{cr}')
 
+def KNN(target):
+    data = concatAndClean(True)
+
+    y = data[[target]].values.ravel()
+    X = data.drop([target], axis=1)
+    # if target == "SM_frequencySum":
+    #     X = data.drop([target, "SM_usedTotal"], axis=1)
+    # elif target == "SM_usedTotal":
+    #     X = data.drop([target, "SM_frequencySum"], axis=1)
+
+    print(X.head())
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    for i in range(1,11):
+        knn = KNeighborsClassifier(n_neighbors=i)
+        knn.fit(X_train, y_train)
+        y_pred = knn.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+
+        print(f'Accuracy KNN{i}: {accuracy * 100:.2f}%')
+
+
+
+def concatAndClean(getSums: bool) -> pd.DataFrame:
+    """
+    getSums: whether or not you want to get sums of web1(which social media they use) and sns(how frequently they use social media)
+    returns: combined dataframe of all CoreTrend years
+    """
+    #read in data
+    CoreTrends2021Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","gender", "age"]
+    CoreTrends2019Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age"]
+    CoreTrends2018Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age"]
+    CoreTrends2021_wantedCols = readInAndGetWantedColumns("datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv", "csv", CoreTrends2021Cols)
+    CoreTrends2019_wantedCols = readInAndGetWantedColumns("datasets/January-8-February-7-2019-Core-Trends-Survey-SPSS/January 8-February 7, 2019 - Core Trends Survey - CSV.csv", "csv", CoreTrends2019Cols)
+    CoreTrends2018_wantedCols = readInAndGetWantedColumns("datasets/January 3-10, 2018 - Core Trends Survey/January 3-10, 2018 - Core Trends Survey - CSV.csv", "csv", CoreTrends2018Cols)
+
+    CoreTrends2021_wantedCols.rename(columns={'gender': 'sex'}, inplace=True)
+    CoreTrends_all = pd.concat([CoreTrends2018_wantedCols,CoreTrends2019_wantedCols, CoreTrends2021_wantedCols], ignore_index=True)
+
+    #Concat all dataframes and convert answers to numeric
+    CoreTrends_all = CoreTrends_all.apply(pd.to_numeric, errors='coerce')
+    CoreTrends_all.fillna(0, inplace=True)
+
+    web1_SMused = ["web1a", "web1b", "web1c", "web1d", "web1e"]
+    sns_SMfrequency = ["sns2a", "sns2b", "sns2c", "sns2d", "sns2e"]
+
+    CoreTrends_all = CoreTrends_all[CoreTrends_all['age'] < 98]
+    CoreTrends_all = CoreTrends_all[CoreTrends_all['sex'] < 98]
+    mask = CoreTrends_all[["sns2a", "sns2b", "sns2c", "sns2d", "sns2e","web1a", "web1b", "web1c", "web1d", "web1e"]] >= 8
+    CoreTrends_all[~mask.any(axis=1)]
+    CoreTrends_all[web1_SMused] = CoreTrends_all[web1_SMused].replace(2,0)
+
+    #0: 18-25 | 1: 26-35 | 2: 35-49 | 3: 50-64 | 4: 65+
+    # CoreTrends_all['age'] = pd.cut(CoreTrends_all['age'], bins=[0, 26, 35, 50, 65, 97],
+    #                 labels=[0, 1, 2, 3, 4])
+    
+    #create sum columns
+    if getSums:
+        CoreTrends_all['SM_usedTotal'] = CoreTrends_all[web1_SMused].sum(axis=1)
+        CoreTrends_all['SM_frequencySum'] = CoreTrends_all[sns_SMfrequency].sum(axis=1)
+        # CoreTrends_all = CoreTrends_all.drop(["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e"], axis=1)
+        CoreTrends_all = CoreTrends_all.drop(sns_SMfrequency, axis=1)
+
+    return CoreTrends_all
+
 
 # Pretty much playground code, ignore for now
 if __name__ == '__main__':
@@ -122,7 +188,14 @@ if __name__ == '__main__':
     # cleaned_data = to_numeric(merged, 'intfreq')
     # merged.info()
     # cleaned_data.value_counts()
-    nsduh2018 = nsduh2018.drop(drop_columns, axis=1)
-    nsduh2018 = convertObjects(nsduh2018)
-    nsduh2018.info()
-    randomForest(nsduh2018, 'intfreq')
+
+    # nsduh2018 = nsduh2018.drop(drop_columns, axis=1)
+    # nsduh2018 = convertObjects(nsduh2018)
+    # nsduh2018.info()
+    # randomForest(nsduh2018, 'intfreq')
+
+    print("KNN frequency")
+    KNN('SM_frequencySum')
+
+    # print("\nKNN usedTotal")
+    # KNN('SM_usedTotal')
