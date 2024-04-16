@@ -8,6 +8,9 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, QuantileTransformer, PowerTransformer
+from sklearn.metrics import mean_squared_error
 from helper_code import readInAndGetWantedColumns
 
 # INTMOB - Access internet on a mobile device of somesort - (1 Yes, 2 No)
@@ -108,26 +111,47 @@ def randomForest(data: pd.DataFrame, target):
     # cr = classification_report(y_test, y_pred, zero_division=1)
     # print(f'Classification report:\n{cr}')
 
-def KNN(target):
+
+
+def logRegression(target):
     data = concatAndClean(True)
-
-    y = data[[target]].values.ravel()
+    y = data[[target]]
+    y = y.values.reshape(-1,1)
     X = data.drop([target], axis=1)
-    # if target == "SM_frequencySum":
-    #     X = data.drop([target, "SM_usedTotal"], axis=1)
-    # elif target == "SM_usedTotal":
-    #     X = data.drop([target, "SM_frequencySum"], axis=1)
 
-    print(X.head())
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    for i in range(1,11):
-        knn = KNeighborsClassifier(n_neighbors=i)
-        knn.fit(X_train, y_train)
-        y_pred = knn.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
+    standardScaler = StandardScaler().fit_transform(y)
+    min_max_scaler = MinMaxScaler().fit_transform(y)
+    max_abs_scaler = MaxAbsScaler().fit_transform(y)
+    robust_scaler = RobustScaler().fit_transform(y)
+    normalizer = Normalizer().fit_transform(y)
+    quantile_transformer = QuantileTransformer().fit_transform(y)
+    power_transformer = PowerTransformer().fit_transform(y)
 
-        print(f'Accuracy KNN{i}: {accuracy * 100:.2f}%')
+    scalers = [ (y,"no scalar"), (standardScaler, "standard scalar"), (min_max_scaler, 'min_max_scaler'),(max_abs_scaler, 'max_abs_scaler'),(robust_scaler, 'robust_scaler'),(normalizer, 'normalizer'),(quantile_transformer, 'quantile_transformer'),(power_transformer, 'power_transformer')]
+    test_split = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+
+    min_mse = float('inf')
+    min_mse_dict = {}
+    for (scaler, name) in scalers:
+        for i in test_split:
+            X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=42)
+            clf = LinearRegression().fit(X_train, y_train)
+            y_pred = clf.predict(X_test)
+            mse = mean_squared_error(y_test, y_pred)
+
+            print(clf.score(X_train, y_train))
+            print(f'MSE log regression {name} test-split-{i}: {mse :.2f}')
+            print()
+
+            if mse < min_mse:
+                min_mse = mse
+                min_mse_dict["Scalar"] = name
+                min_mse_dict["test-split"] = i
+                min_mse_dict["MSE"] = mse
+
+    print("Best MSE")
+    print(min_mse_dict)
 
 
 
@@ -160,17 +184,18 @@ def concatAndClean(getSums: bool) -> pd.DataFrame:
     CoreTrends_all[~mask.any(axis=1)]
     CoreTrends_all[web1_SMused] = CoreTrends_all[web1_SMused].replace(2,0)
 
-    #0: 18-25 | 1: 26-35 | 2: 35-49 | 3: 50-64 | 4: 65+
-    # CoreTrends_all['age'] = pd.cut(CoreTrends_all['age'], bins=[0, 26, 35, 50, 65, 97],
-    #                 labels=[0, 1, 2, 3, 4])
+    # 0: 18-25 | 1: 26-35 | 2: 35-49 | 3: 50-64 | 4: 65+
+    CoreTrends_all['age'] = pd.cut(CoreTrends_all['age'], bins=[0, 26, 35, 50, 65, 97],
+                    labels=[0, 1, 2, 3, 4])
     
     #create sum columns
     if getSums:
-        CoreTrends_all['SM_usedTotal'] = CoreTrends_all[web1_SMused].sum(axis=1)
+        # CoreTrends_all['SM_usedTotal'] = CoreTrends_all[web1_SMused].sum(axis=1)
         CoreTrends_all['SM_frequencySum'] = CoreTrends_all[sns_SMfrequency].sum(axis=1)
         # CoreTrends_all = CoreTrends_all.drop(["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e"], axis=1)
         CoreTrends_all = CoreTrends_all.drop(sns_SMfrequency, axis=1)
 
+    print(CoreTrends_all.head())
     return CoreTrends_all
 
 
@@ -194,8 +219,12 @@ if __name__ == '__main__':
     # nsduh2018.info()
     # randomForest(nsduh2018, 'intfreq')
 
-    print("KNN frequency")
-    KNN('SM_frequencySum')
+    print("linear Regression:")
+    logRegression("SM_frequencySum")
+    print()
+
+    # print("KNN frequency")
+    # KNN('SM_frequencySum')
 
     # print("\nKNN usedTotal")
     # KNN('SM_usedTotal')
