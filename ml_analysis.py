@@ -10,7 +10,7 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, QuantileTransformer, PowerTransformer
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from helper_code import readInAndGetWantedColumns
 
 # INTMOB - Access internet on a mobile device of somesort - (1 Yes, 2 No)
@@ -132,26 +132,30 @@ def logRegression(target):
     test_split = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 
     min_mse = float('inf')
-    min_mse_dict = {}
+    max_r2 = float("-inf")
+    best_model = {}
     for (scaler, name) in scalers:
         for i in test_split:
-            X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=42)
+            X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=333)
             clf = LinearRegression().fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
 
             print(clf.score(X_train, y_train))
-            print(f'MSE log regression {name} test-split-{i}: {mse :.2f}')
+            print(f'MSE log regression {name} test-split-{i} | MSE: {mse :.2f} r2: {r2 :.2f}')
             print()
 
-            if mse < min_mse:
+            if mse < min_mse and r2 > max_r2:
                 min_mse = mse
-                min_mse_dict["Scalar"] = name
-                min_mse_dict["test-split"] = i
-                min_mse_dict["MSE"] = mse
+                max_r2 = r2
+                best_model["Scalar"] = name
+                best_model["test-split"] = i
+                best_model["MSE"] = mse
+                best_model["r2"] = r2
 
     print("Best MSE")
-    print(min_mse_dict)
+    print(best_model)
 
 
 
