@@ -113,7 +113,7 @@ def randomForest(data: pd.DataFrame, target):
 
 
 
-def logRegression(target):
+def linearRegression(target):
     data = concatAndClean(True)
     y = data[[target]]
     y = y.values.reshape(-1,1)
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     # randomForest(nsduh2018, 'intfreq')
 
     print("linear Regression:")
-    logRegression("SM_frequencySum")
+    linearRegression("SM_frequencySum")
     print()
 
     # print("KNN frequency")
