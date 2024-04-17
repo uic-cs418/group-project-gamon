@@ -4,6 +4,8 @@ import pandas as pd
     
 def readInAndGetWantedColumns(path, type, cols):
     """
+    ***DO NOT CHANGE/UPDATE, may mess up visual 1***
+    
     One part of data cleaning process, getting only the necessary columns from the dataset,
     and returning a copy of the dataframe so the original one stays intact
 
@@ -25,6 +27,8 @@ def readInAndGetWantedColumns(path, type, cols):
 
 def cleanUpCoreTrends(df, id, values):
     """
+    ***DO NOT CHANGE/UPDATE, may mess up visual 1***
+
     df: Core Trends dataframe (Dataframe)
     id = the columns to include in id_vars for melting as a list of strings
     values: columns to include in variable for value_vars as list of strings
@@ -58,6 +62,8 @@ def cleanUpCoreTrends(df, id, values):
 
 def cleanUpNSDUH(df, id, values):
     """
+    ***DO NOT CHANGE/UPDATE, may mess up visual 1***
+
     Main code to clean up NSDUH dataset specifically
 
     df: NSDUH dataframe
@@ -118,6 +124,8 @@ def cleanUpNSDUH(df, id, values):
 
 def getPercentage(df, filterVal, groupByCol, year):
     """
+    ***DO NOT CHANGE/UPDATE, may mess up visual 1***
+
     Get percentage for a value in a group
 
     df: dataframe to get percentage for
