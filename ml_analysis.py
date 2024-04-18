@@ -4,7 +4,7 @@ from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+from sklearn.svm import SVC, SVR
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
@@ -114,22 +114,17 @@ def randomForest(data: pd.DataFrame, target):
 
 
 def linearRegression(target, dataset):
-
     if dataset == "NSDUH":
         data = concatAndCleanNSDUH()
     elif dataset == "CoreTrends":
         data = concatAndCleanCoreTrends(True)
 
-
     y = data[[target]]
     print(y.head())
     print()
-
     y = y.values.reshape(-1,1)
     X = data.drop([target], axis=1)
-
     print(X.head())
-
 
     standardScaler = StandardScaler().fit_transform(y)
     min_max_scaler = MinMaxScaler().fit_transform(y)
@@ -142,6 +137,7 @@ def linearRegression(target, dataset):
     scalers = [ (y,"no scalar"), (standardScaler, "standard scalar"), (min_max_scaler, 'min_max_scaler'),(max_abs_scaler, 'max_abs_scaler'),(robust_scaler, 'robust_scaler'),(normalizer, 'normalizer'),(quantile_transformer, 'quantile_transformer'),(power_transformer, 'power_transformer')]
     test_split = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 
+
     min_mse = float('inf')
     max_r2 = float("-inf")
     best_model = {}
@@ -149,7 +145,7 @@ def linearRegression(target, dataset):
         for i in test_split:
             X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=333)
             clf = LinearRegression().fit(X_train, y_train)
-            # clf = Lasso(alpha=0.7).fit(X_train, y_train)
+            # clf = Ridge(alpha=0.5).fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
@@ -169,6 +165,7 @@ def linearRegression(target, dataset):
 
     print("Best MSE")
     print(best_model)
+    #Should be {'Scalar': 'quantile_transformer', 'test-split': 0.1, 'MSE': 0.034798574408602734, 'r2': 0.6076034006822588}
 
 
 def concatAndCleanNSDUH():
@@ -187,26 +184,17 @@ def concatAndCleanNSDUH():
     print(" - Done")
     print("Finished reading datasets")
 
-    # NSDUH2021_wantedCols.rename(columns={'AGE3': 'AGE2'}, inplace=True)
-
-    # #Create buckets for consistent labels for age
-    # NSDUH2018_wantedCols['AGE2'] = pd.cut(NSDUH2018_wantedCols['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
-    #                     labels=[0, 1, 2, 3, 4])
-    # NSDUH2019_wantedCols['AGE2'] = pd.cut(NSDUH2019_wantedCols['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
-    #                     labels=[0, 1, 2, 3, 4])
-    # NSDUH2021_wantedCols['AGE2'] = pd.cut(NSDUH2021_wantedCols['AGE2'], bins=[0, 7, 9, 10, 11, float('inf')],
-    #                     labels=[0, 1, 2, 3, 4])
-
     NSDUH_all = pd.concat([NSDUH2019_wantedCols,NSDUH2018_wantedCols, NSDUH2021_wantedCols], ignore_index=True)
-
-    NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'IMPSOC']]
+    NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'DSTCHR30', 'DSTNGD30', 'DSTNGD12', 'DSTHOP30', 'IMPSOC']]
     NSDUH_slim = NSDUH_slim.apply(pd.to_numeric, errors='coerce')
     NSDUH_slim.fillna(0, inplace=True)
 
     #Remove refused vals
     NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTCHR12'] < 85]
-    NSDUH_slim = NSDUH_slim[NSDUH_slim['IMPSOC'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTCHR30'] < 85]
     NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTHOP12'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTHOP30'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['IMPSOC'] < 85]
 
     return NSDUH_slim
 
@@ -248,9 +236,7 @@ def concatAndCleanCoreTrends(getSums: bool) -> pd.DataFrame:
     
     #create sum columns
     if getSums:
-        # CoreTrends_all['SM_usedTotal'] = CoreTrends_all[web1_SMused].sum(axis=1)
         CoreTrends_all['SM_frequencySum'] = CoreTrends_all[sns_SMfrequency].sum(axis=1)
-        # CoreTrends_all = CoreTrends_all.drop(["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e"], axis=1)
         CoreTrends_all = CoreTrends_all.drop(sns_SMfrequency, axis=1)
 
     print(CoreTrends_all.head())
@@ -278,7 +264,7 @@ if __name__ == '__main__':
     # randomForest(nsduh2018, 'intfreq')
 
     print("---linear Regression---")
-    linearRegression("IMPSOC", "NSDUH")
+    linearRegression("SM_frequencySum", "CoreTrends")
     print()
 
     # print("KNN frequency")
