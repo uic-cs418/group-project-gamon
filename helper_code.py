@@ -53,6 +53,7 @@ def cleanUpCoreTrends(df, id, values):
     df = pd.melt(df, id_vars=id, value_vars=values)
 
     #Put value into bin, useful for labelling later
+    #*****Might need to change this in new function if using sns1a - sns1e instead
     df['value'] = pd.cut(df['value'], bins=[0,1,2],
                     labels=['Uses Social Media', 'Doesnt Use Social Media'])
 
@@ -62,7 +63,7 @@ def cleanUpCoreTrends(df, id, values):
 
 def cleanUpNSDUH(df, id, values):
     """
-    ***DO NOT CHANGE/UPDATE, may mess up visual 1***
+    ***CAN ADD NEW BUCKETS FOR COLUMNS AS NEEDED***
 
     Main code to clean up NSDUH dataset specifically
 
@@ -97,6 +98,8 @@ def cleanUpNSDUH(df, id, values):
                        labels=['Nervous', 'Not Nervous'])
         df['DSTCHR12'] = pd.cut(df['DSTCHR12'], bins=[0, 4, 5],
                        labels=['Depressed', 'Not Depressed'])
+        #****Write new buckets here
+
         
         longForm = pd.melt(df, id_vars=id, value_vars=values)
         longForm=longForm.rename(columns={'AGE2': 'age'})
@@ -112,6 +115,7 @@ def cleanUpNSDUH(df, id, values):
                        labels=['Nervous', 'Not Nervous'])
         df['DSTCHR12'] = pd.cut(df['DSTCHR12'], bins=[0, 4, 5],
                        labels=['Depressed', 'Not Depressed'])
+        #*******Write new buckets here
 
         longForm = pd.melt(df, id_vars=id, value_vars=values)
         longForm=longForm.rename(columns={'AGE3': 'age'})

@@ -8,10 +8,10 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, Ridge, Lasso
 from sklearn.preprocessing import MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, QuantileTransformer, PowerTransformer
 from sklearn.metrics import mean_squared_error, r2_score
-from helper_code import readInAndGetWantedColumns
+from helper_code import readInAndGetWantedColumns, cleanUpNSDUH
 
 # INTMOB - Access internet on a mobile device of somesort - (1 Yes, 2 No)
 # INTFREQ - Internet Frequency - 1 Constantly, 2 Several Times, 3 About once a day, 4 Several times a week, 5 Less often, 6 Dont know, Refused
@@ -113,11 +113,22 @@ def randomForest(data: pd.DataFrame, target):
 
 
 
-def linearRegression(target):
-    data = concatAndClean(True)
+def linearRegression(target, dataset):
+
+    if dataset == "NSDUH":
+        data = concatAndCleanNSDUH()
+    elif dataset == "CoreTrends":
+        data = concatAndCleanCoreTrends(True)
+
+
     y = data[[target]]
+    print(y.head())
+    print()
+
     y = y.values.reshape(-1,1)
     X = data.drop([target], axis=1)
+
+    print(X.head())
 
 
     standardScaler = StandardScaler().fit_transform(y)
@@ -138,15 +149,17 @@ def linearRegression(target):
         for i in test_split:
             X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=333)
             clf = LinearRegression().fit(X_train, y_train)
+            # clf = Lasso(alpha=0.7).fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
 
             print(clf.score(X_train, y_train))
+            print(scaler[:5])
             print(f'MSE log regression {name} test-split-{i} | MSE: {mse :.2f} r2: {r2 :.2f}')
             print()
 
-            if mse < min_mse and r2 > max_r2:
+            if (mse < min_mse and r2 > max_r2) and (mse != 0 and r2 != 1):
                 min_mse = mse
                 max_r2 = r2
                 best_model["Scalar"] = name
@@ -158,8 +171,49 @@ def linearRegression(target):
     print(best_model)
 
 
+def concatAndCleanNSDUH():
+    #read in data
+    print("Reading in datasets")
+    NSDUH2021Cols = ["CATAG6", "AGE3","IRSEX","AUINPYR","AURXYR","YEATNDYR","YESCHFLT","YEPRBSLV","DSTNRV30","DSTHOP30","DSTCHR30","DSTNGD30","DSTWORST","DSTNRV12","DSTHOP12","DSTCHR12","DSTNGD12","IMPCONCN","IMPGOUT","IMPPEOP","IMPSOC","IMPSOCM","SUICTHNK","SUIPLANYR","ADDPREV"]
+    NSDUH201819Cols = ["CATAG6", "AGE2", "IRSEX", "AUINPYR","AURXYR","YEATNDYR","YESCHFLT","YEPRBSLV","DSTNRV30","DSTHOP30","DSTCHR30","DSTNGD30","DSTWORST","DSTNRV12","DSTHOP12","DSTCHR12","DSTNGD12","IMPCONCN","IMPGOUT","IMPPEOP","IMPSOC","IMPSOCM","SUICTHNK","ADDPREV"]
+    print("NSDUH2019: ")
+    NSDUH2019_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2019/NSDUH_2019_Tab.txt", "txt", NSDUH201819Cols)
+    print(" - Done")
+    print("NSDUH2018: ")
+    NSDUH2018_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2018/NSDUH_2018_Tab.tsv", "tsv", NSDUH201819Cols)
+    print(" - Done")
+    print("NSDUH2021: ")
+    NSDUH2021_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2021/NSDUH_2021_Tab.txt", "txt", NSDUH2021Cols)
+    print(" - Done")
+    print("Finished reading datasets")
 
-def concatAndClean(getSums: bool) -> pd.DataFrame:
+    # NSDUH2021_wantedCols.rename(columns={'AGE3': 'AGE2'}, inplace=True)
+
+    # #Create buckets for consistent labels for age
+    # NSDUH2018_wantedCols['AGE2'] = pd.cut(NSDUH2018_wantedCols['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
+    #                     labels=[0, 1, 2, 3, 4])
+    # NSDUH2019_wantedCols['AGE2'] = pd.cut(NSDUH2019_wantedCols['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
+    #                     labels=[0, 1, 2, 3, 4])
+    # NSDUH2021_wantedCols['AGE2'] = pd.cut(NSDUH2021_wantedCols['AGE2'], bins=[0, 7, 9, 10, 11, float('inf')],
+    #                     labels=[0, 1, 2, 3, 4])
+
+    NSDUH_all = pd.concat([NSDUH2019_wantedCols,NSDUH2018_wantedCols, NSDUH2021_wantedCols], ignore_index=True)
+
+    NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'IMPSOC']]
+    NSDUH_slim = NSDUH_slim.apply(pd.to_numeric, errors='coerce')
+    NSDUH_slim.fillna(0, inplace=True)
+
+    #Remove refused vals
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTCHR12'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['IMPSOC'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTHOP12'] < 85]
+
+    return NSDUH_slim
+
+
+
+
+def concatAndCleanCoreTrends(getSums: bool) -> pd.DataFrame:
     """
     getSums: whether or not you want to get sums of web1(which social media they use) and sns(how frequently they use social media)
     returns: combined dataframe of all CoreTrend years
@@ -223,8 +277,8 @@ if __name__ == '__main__':
     # nsduh2018.info()
     # randomForest(nsduh2018, 'intfreq')
 
-    print("linear Regression:")
-    linearRegression("SM_frequencySum")
+    print("---linear Regression---")
+    linearRegression("IMPSOC", "NSDUH")
     print()
 
     # print("KNN frequency")
