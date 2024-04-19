@@ -112,6 +112,20 @@ def randomForest(data: pd.DataFrame, target):
     # print(f'Classification report:\n{cr}')
 
 
+def knnClassifier(target):
+    NSDUH_moreslim = concatAndCleanNSDUH()
+    y = NSDUH_moreslim[[target]]
+    X = NSDUH_moreslim.drop([target], axis=1)
+    y = y.values.ravel()
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=333)
+
+    knn = KNeighborsClassifier(n_neighbors=9)
+    knn.fit(X_train, y_train)
+    y_pred = knn.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'Accuracy for {9} neighbors: {accuracy * 100:.2f}%')
+
 
 def linearRegression(target, dataset):
     if dataset == "NSDUH":
@@ -145,7 +159,6 @@ def linearRegression(target, dataset):
         for i in test_split:
             X_train, X_test, y_train, y_test = train_test_split(X, scaler, test_size=i, random_state=333)
             clf = LinearRegression().fit(X_train, y_train)
-            # clf = Ridge(alpha=0.5).fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             mse = mean_squared_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
@@ -185,16 +198,15 @@ def concatAndCleanNSDUH():
     print("Finished reading datasets")
 
     NSDUH_all = pd.concat([NSDUH2019_wantedCols,NSDUH2018_wantedCols, NSDUH2021_wantedCols], ignore_index=True)
-    NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'DSTCHR30', 'DSTNGD30', 'DSTNGD12', 'DSTHOP30', 'IMPSOC']]
+    # NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'DSTCHR30', 'DSTNGD30', 'DSTNGD12', 'DSTHOP30', 'IMPSOC']]
+    NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', "IMPSOCM"]]
     NSDUH_slim = NSDUH_slim.apply(pd.to_numeric, errors='coerce')
     NSDUH_slim.fillna(0, inplace=True)
 
     #Remove refused vals
     NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTCHR12'] < 85]
-    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTCHR30'] < 85]
     NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTHOP12'] < 85]
-    NSDUH_slim = NSDUH_slim[NSDUH_slim['DSTHOP30'] < 85]
-    NSDUH_slim = NSDUH_slim[NSDUH_slim['IMPSOC'] < 85]
+    NSDUH_slim = NSDUH_slim[NSDUH_slim['IMPSOCM'] < 85]
 
     return NSDUH_slim
 
@@ -263,12 +275,10 @@ if __name__ == '__main__':
     # nsduh2018.info()
     # randomForest(nsduh2018, 'intfreq')
 
-    print("---linear Regression---")
-    linearRegression("SM_frequencySum", "CoreTrends")
-    print()
+    # #Backup ML model for CoreTrends
+    # print("---linear Regression---")
+    # linearRegression("SM_frequencySum", "CoreTrends")
+    # print()
 
-    # print("KNN frequency")
-    # KNN('SM_frequencySum')
-
-    # print("\nKNN usedTotal")
-    # KNN('SM_usedTotal')
+    print("---KNN---")
+    knnClassifier("IMPSOCM")
