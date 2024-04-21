@@ -1,5 +1,6 @@
 import pandas as pd
-import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -27,15 +28,18 @@ from helper_code import readInAndGetWantedColumns, cleanUpNSDUH
 # WEB1i Use of Reddit 1 Yes, 2 No, 3 Dont Know, 4 Refused
 # WEB1j Use of TikTok 1 Yes, 2 No, 3 Dont Know, 4 Refused
 # Inc - Income ranges
-def predictUsageOfAgeGroups(data: pd.DataFrame):
+# Smart2
+def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, graph=False):
     """
         
     """
+    data['age'] = pd.to_numeric(data['age'], errors='coerce', downcast='integer')
+    data.fillna(0, inplace=True)
+    data.dropna()
+
     data['age'] = pd.cut(data['age'], bins=[0, 24, 34, 44, 54, 64, float('inf')],
                        labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
-    selected = ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'web1f', 'web1g',
-                'web1h', 'sex']
-    X = data[selected]
+    X = data[input]
     y = data['age']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
 
@@ -50,13 +54,12 @@ def predictUsageOfAgeGroups(data: pd.DataFrame):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy: {accuracy:.2f}")
 
-    # print("Classification Report:")
-    # print(classification_report(y_test, y_pred))
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred))
 
-    # Commenting out for the purpose of space on notebook
-    # print("Confusion Matrix:")
-    # print(confusion_matrix(y_test, y_pred))
-
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+    print("Input data: ", input)
 
 def feature_selection(X: pd.DataFrame, y: pd.Series, n_features=None):
     """ 
@@ -84,7 +87,7 @@ def convertObjects(data: pd.DataFrame) -> pd.DataFrame:
     columns = copy.select_dtypes(include=['object'])
     for column in columns.columns:
         copy[column] = pd.to_numeric(copy[column], errors='coerce', downcast='integer')
-    copy.fillna(-1, inplace=True)
+    copy.fillna(0, inplace=True)
     return copy
 
 def randomForest(data: pd.DataFrame, target):
@@ -219,12 +222,18 @@ def concatAndCleanCoreTrends(getSums: bool) -> pd.DataFrame:
     returns: combined dataframe of all CoreTrend years
     """
     #read in data
-    CoreTrends2021Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","gender", "age"]
-    CoreTrends2019Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age"]
-    CoreTrends2018Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age"]
+    CoreTrends2021Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","gender", "age", 'intfreq', "par", "educ2", "emplnw", "disa", "income", 'party', "books1", 'racecmb']
+    CoreTrends2019Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age", 'intfreq', "educ2", "emplnw", 'party', "books1", 'racecmb']
+    CoreTrends2018Cols = ["web1a", "web1b", "web1c", "web1d", "web1e","sns2a", "sns2b", "sns2c", "sns2d", "sns2e","sex", "age", 'intfreq', "educ2", "emplnw", 'party', "books1", 'racecmb']
+
     CoreTrends2021_wantedCols = readInAndGetWantedColumns("datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv", "csv", CoreTrends2021Cols)
     CoreTrends2019_wantedCols = readInAndGetWantedColumns("datasets/January-8-February-7-2019-Core-Trends-Survey-SPSS/January 8-February 7, 2019 - Core Trends Survey - CSV.csv", "csv", CoreTrends2019Cols)
     CoreTrends2018_wantedCols = readInAndGetWantedColumns("datasets/January 3-10, 2018 - Core Trends Survey/January 3-10, 2018 - Core Trends Survey - CSV.csv", "csv", CoreTrends2018Cols)
+
+    for missing in ['par', 'dis', 'income']:
+        CoreTrends2019_wantedCols[f"{missing}"] = -1;
+        CoreTrends2018_wantedCols[f"{missing}"] = -1;
+
 
     CoreTrends2021_wantedCols.rename(columns={'gender': 'sex'}, inplace=True)
     CoreTrends_all = pd.concat([CoreTrends2018_wantedCols,CoreTrends2019_wantedCols, CoreTrends2021_wantedCols], ignore_index=True)
@@ -254,6 +263,25 @@ def concatAndCleanCoreTrends(getSums: bool) -> pd.DataFrame:
     print(CoreTrends_all.head())
     return CoreTrends_all
 
+def SVMStatisticalAnalysis():
+    nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
+    nsduh2021 = convertObjects(nsduh2021)
+    selected = [
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income', 'par', 'marital'],
+     ['intfreq','sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
+      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
+      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
+    ]
+    for select in selected:
+        predictUsageOfAgeGroups(nsduh2021.copy(), select)
+
+    predictUsageOfAgeGroups(nsduh2021.copy(), select[0], graph=True)
+    predictUsageOfAgeGroups(nsduh2021.copy(), select[-1], graph=True)
+
+
 
 # Pretty much playground code, ignore for now
 if __name__ == '__main__':
@@ -274,9 +302,24 @@ if __name__ == '__main__':
     # nsduh2018 = convertObjects(nsduh2018)
     # nsduh2018.info()
     # randomForest(nsduh2018, 'intfreq')
+    nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
+    nsduh2021 = convertObjects(nsduh2021)
+    selected = [
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income', 'par', 'marital'],
+     ['intfreq','sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
+      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
+     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
+      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
+    ]
+    for select in selected:
+        predictUsageOfAgeGroups(nsduh2021.copy(), select)
+
+    exit()
 
     # #Backup ML model for CoreTrends
-    # print("---linear Regression---")
+    # print("---linear Regression---")r
     # linearRegression("SM_frequencySum", "CoreTrends")
     # print()
 
