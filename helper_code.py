@@ -48,7 +48,8 @@ def cleanUpCoreTrends(df, id, values):
     #Put age into bins
     df['age'] = pd.cut(df['age'], bins=[0, 26, 35, 50, 65, 97],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
-
+    # df['age'] = pd.cut(df['age'], bins=[0, 26, 35, 50, 65, 97],
+    #                    labels=[0, 1, 2, 3, 4])
     #Convert to long form
     df = pd.melt(df, id_vars=id, value_vars=values)
 
@@ -90,6 +91,8 @@ def cleanUpNSDUH(df, id, values):
     try:
         df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
                        labels=['18-25', '26-34', '35-49', '50-64', '65+'])
+        # df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
+        #                labels=[0, 1, 2, 3, 4])
         df['DSTCHR30'] = pd.cut(df['DSTCHR30'], bins=[0, 4, 5],
                        labels=['some depressed', 'little-no depression'])
         df['IMPCONCN'] = pd.cut(df['IMPCONCN'], bins=[0, 2, 5],
