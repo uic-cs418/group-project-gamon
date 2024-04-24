@@ -127,7 +127,7 @@ def knnClassifier(target):
     knn.fit(X_train, y_train)
     y_pred = knn.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy for {9} neighbors: {accuracy * 100:.2f}%')
+    print(f'Accuracy for 9 neighbors: {accuracy * 100:.2f}%')
 
 
 def linearRegression(target, dataset):
@@ -186,19 +186,19 @@ def linearRegression(target, dataset):
 
 def concatAndCleanNSDUH():
     #read in data
-    print("Reading in datasets")
+    # print("Reading in datasets")
     NSDUH2021Cols = ["CATAG6", "AGE3","IRSEX","AUINPYR","AURXYR","YEATNDYR","YESCHFLT","YEPRBSLV","DSTNRV30","DSTHOP30","DSTCHR30","DSTNGD30","DSTWORST","DSTNRV12","DSTHOP12","DSTCHR12","DSTNGD12","IMPCONCN","IMPGOUT","IMPPEOP","IMPSOC","IMPSOCM","SUICTHNK","SUIPLANYR","ADDPREV"]
     NSDUH201819Cols = ["CATAG6", "AGE2", "IRSEX", "AUINPYR","AURXYR","YEATNDYR","YESCHFLT","YEPRBSLV","DSTNRV30","DSTHOP30","DSTCHR30","DSTNGD30","DSTWORST","DSTNRV12","DSTHOP12","DSTCHR12","DSTNGD12","IMPCONCN","IMPGOUT","IMPPEOP","IMPSOC","IMPSOCM","SUICTHNK","ADDPREV"]
-    print("NSDUH2019: ")
+    # print("NSDUH2019: ")
     NSDUH2019_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2019/NSDUH_2019_Tab.txt", "txt", NSDUH201819Cols)
-    print(" - Done")
-    print("NSDUH2018: ")
+    # print(" - Done")
+    # print("NSDUH2018: ")
     NSDUH2018_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2018/NSDUH_2018_Tab.tsv", "tsv", NSDUH201819Cols)
-    print(" - Done")
-    print("NSDUH2021: ")
+    # print(" - Done")
+    # print("NSDUH2021: ")
     NSDUH2021_wantedCols = readInAndGetWantedColumns("datasets/National Survey on Drug Use and Health 2021/NSDUH_2021_Tab.txt", "txt", NSDUH2021Cols)
-    print(" - Done")
-    print("Finished reading datasets")
+    # print(" - Done")
+    # print("Finished reading datasets")
 
     NSDUH_all = pd.concat([NSDUH2019_wantedCols,NSDUH2018_wantedCols, NSDUH2021_wantedCols], ignore_index=True)
     # NSDUH_slim = NSDUH_all[['CATAG6', 'IRSEX', 'DSTCHR12', 'DSTHOP12', 'DSTCHR30', 'DSTNGD30', 'DSTNGD12', 'DSTHOP30', 'IMPSOC']]
