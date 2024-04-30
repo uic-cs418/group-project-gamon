@@ -168,6 +168,53 @@ def getPercentage(df, filterVal, groupByCol, year):
 
     return finalDf
 
+def cleanUpCT(df, id, values):
+    # df = df.drop(columns=['sns2a'])
+
+    df = df.apply(pd.to_numeric, errors='coerce')
+
+    #Remove refused ages
+    df = df[df['age'] < 98]
+
+    #Put age into bins
+    df['age'] = pd.cut(df['age'], bins=[0, 26, 35, 50, 65, 97],
+                       labels=["Gen Z", "Millennials", "Gen X", "Young Boomers", "Older Boomers"])
+
+    df['totalFreq'] = df[["sns2a", "sns2b", "sns2c", "sns2d", "sns2e"]].sum(axis=1)
+    df = df.rename(columns={"totalFreq": "Social media use"})
+    #Convert to long form
+    df = pd.melt(df, id_vars=id, value_vars=["Social media use"])
+    df=df.rename(columns={"value": "Frequency of Social Media Use", "age":"Generations"})
+    return df
+
+def cleanUpNS(df, id, values, year):
+    df = df.apply(pd.to_numeric, errors='coerce')
+
+    #Remove refused ages
+    if year == 2021:
+        df = df[df['AGE3'] < 85]
+        df = df[df[values[0]] < 85]
+        df['AGE3'] = pd.cut(df['AGE3'], bins=[0, 7, 9, 10, 11, float('inf')],
+                       labels=["Gen Z", "Millennials", "Gen X", "Young Boomers", "Older Boomers"])
+
+        #Convert to long form
+        renamed = "DSTNRV12"
+        df = df.rename(columns={renamed: "Nervousness"})
+        df = pd.melt(df, id_vars=['AGE3'], value_vars=["Nervousness"])
+        df=df.rename(columns={"value": "Nervousness", "AGE3":"Generations"})
+    else:
+        df = df[df['AGE2'] < 85]
+        df = df[df[values[0]] < 85]
+        df['AGE2'] = pd.cut(df['AGE2'], bins=[0, 13, 15, 16, 17, float('inf')],
+                       labels=["Gen Z", "Millennials", "Gen X", "Young Boomers", "Older Boomers"])  
+
+        renamed = "DSTNRV12"
+        df = df.rename(columns={renamed: "Nervousness"})
+        #Convert to long form
+        df = pd.melt(df, id_vars=['AGE2'], value_vars=["Nervousness"])
+        df=df.rename(columns={"value": "Nervousness", "AGE2":"Generations"})
+    return df
+
 
 def allFuncsCoreTrends():
     pass
