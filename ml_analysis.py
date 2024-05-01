@@ -283,28 +283,6 @@ if __name__ == '__main__':
     nsduh2018 = pd.read_csv('datasets/January 3-10, 2018 - Core Trends Survey/January 3-10, 2018 - Core Trends Survey - CSV.csv')
     nsduh2019 = pd.read_csv('datasets/January-8-February-7-2019-Core-Trends-Survey-SPSS/January 8-February 7, 2019 - Core Trends Survey - CSV.csv')
     nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
-    # nsduh2019.info()
-    # nsduh2021.info()
-    # merged = pd.concat([nsduh2018, nsduh2019, nsduh2021], axis=0)
-    # print('====================================================================')
-    # merged.info()
-    # cleaned_data = to_numeric(merged, 'intfreq')
-    # merged.info()
-    # cleaned_data.value_counts()
-
-    # nsduh2018 = nsduh2018.drop(drop_columns, axis=1)
-    # nsduh2018 = convertObjects(nsduh2018)
-    # nsduh2018.info()
-    # randomForest(nsduh2018, 'intfreq')
-    # nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
-    # nsduh2021 = convertObjects(nsduh2021)
-    # selected = [
-    #  ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
-    #  ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
-    #   'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
-    # ]
-    # for select in selected:
-    #     predictUsageOfAgeGroups(nsduh2021.copy(), select)
 
     SVMStatisticalAnalysis()
 
