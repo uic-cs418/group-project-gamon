@@ -1,4 +1,5 @@
 import os
+import shutil
 import requests
 import zipfile
 
@@ -12,17 +13,15 @@ filenames = [
         "NSDUH2018.zip",
         "NSDUH2019.zip",
         "NSDUH2021.zip",
-        "NSDUH2022.zip",
         ]
 
 dirs = {
         'datasets/January 3-10, 2018 - Core Trends Survey' : "https://www.pewresearch.org/wp-content/uploads/sites/20/2018/05/January-3-10-2018-Core-Trends-Survey.zip",
-        'datasets/January-8-February-7-2019-Core-Trends-Survey-SPS' : "https://www.pewresearch.org/wp-content/uploads/sites/20/2019/10/January-8-February-7-2019-Core-Trends-Survey-SPSS.zip",
+        'datasets/January-8-February-7-2019-Core-Trends-Survey-SPSS' : "https://www.pewresearch.org/wp-content/uploads/sites/20/2019/10/January-8-February-7-2019-Core-Trends-Survey-SPSS.zip",
         'datasets/Jan-25-Feb-8-2021-Core-Trends-Survey' : "https://www.pewresearch.org/wp-content/uploads/sites/20/2022/05/Jan-25-Feb-8-2021-Core-Trends-Survey.zip",
         'datasets/National Survey on Drug Use and Health 2018' : "https://www.datafiles.samhsa.gov/sites/default/files/field-uploads-protected/studies/NSDUH-2018/NSDUH-2018-datasets/NSDUH-2018-DS0001/NSDUH-2018-DS0001-bundles-with-study-info/NSDUH-2018-DS0001-bndl-data-tsv.zip",
         'datasets/National Survey on Drug Use and Health 2019' : "https://www.datafiles.samhsa.gov/sites/default/files/field-uploads-protected/studies/NSDUH-2019/NSDUH-2019-datasets/NSDUH-2019-DS0001/NSDUH-2019-DS0001-bundles-with-study-info/NSDUH-2019-DS0001-bndl-data-tsv.zip",
         'datasets/National Survey on Drug Use and Health 2021' : "https://www.datafiles.samhsa.gov/sites/default/files/field-uploads-protected/studies/NSDUH-2021/NSDUH-2021-datasets/NSDUH-2021-DS0001/NSDUH-2021-DS0001-bundles-with-study-info/NSDUH-2021-DS0001-bndl-data-tsv_v4.zip",
-        'datasets/National Survey on Drug Use and Health 2022' : "https://www.datafiles.samhsa.gov/sites/default/files/field-uploads-protected/studies/NSDUH-2022/NSDUH-2022-datasets/NSDUH-2022-DS0001/NSDUH-2022-DS0001-bundles-with-study-info/NSDUH-2022-DS0001-bndl-data-tsv_v1.zip"
         }
 
 assert len(filenames) == len(dirs)
@@ -49,7 +48,16 @@ for dir, filename in zip(dirs, filenames):
     with zipfile.ZipFile(f"tmp/{filename}", "r") as zip:
         zip.extractall(f"{dir}/.")
 
+extradir = "datasets/January 3-10, 2018 - Core Trends Survey/January 3-10, 2018 - Core Trends Survey"
+extra = os.listdir(extradir)
+target = "datasets/January 3-10, 2018 - Core Trends Survey"
+print()
+for item in extra:
+    print(f"Moving: {item}")
+    shutil.move(f"{extradir}/{item}", f"{target}/")
+
 print("Done, cleaning up now")
 for filename in filenames:
     os.remove(f"tmp/{filename}")
 os.removedirs("tmp")
+os.removedirs(extradir)
