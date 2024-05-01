@@ -29,7 +29,7 @@ from helper_code import readInAndGetWantedColumns, cleanUpNSDUH
 # WEB1j Use of TikTok 1 Yes, 2 No, 3 Dont Know, 4 Refused
 # Inc - Income ranges
 # Smart2
-def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, graph=False):
+def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, confusion=False):
     """
         
     """
@@ -41,7 +41,7 @@ def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, graph=False):
                        labels=['18-24', '25-34', '35-44', '45-54', '55-64', '65+'])
     X = data[input]
     y = data['age']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train_scaled  = scaler.fit_transform(X_train)
@@ -57,9 +57,11 @@ def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, graph=False):
     print("Classification Report:")
     print(classification_report(y_test, y_pred))
 
-    print("Confusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
-    print("Input data: ", input)
+
+    if(confusion == true):
+        print("Confusion Matrix:")
+        print(confusion_matrix(y_test, y_pred))
+        print("Input data: ", input)
 
 def feature_selection(X: pd.DataFrame, y: pd.Series, n_features=None):
     """ 
@@ -268,18 +270,14 @@ def SVMStatisticalAnalysis():
     nsduh2021 = convertObjects(nsduh2021)
     selected = [
      ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income'],
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income', 'par', 'marital'],
-     ['intfreq','sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
-      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
      ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
       'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
     ]
     for select in selected:
         predictUsageOfAgeGroups(nsduh2021.copy(), select)
 
-    predictUsageOfAgeGroups(nsduh2021.copy(), select[0], graph=True)
-    predictUsageOfAgeGroups(nsduh2021.copy(), select[-1], graph=True)
+    predictUsageOfAgeGroups(nsduh2021.copy(), select[0], graph=False)
+    predictUsageOfAgeGroups(nsduh2021.copy(), select[-1], graph=False)
 
 
 
