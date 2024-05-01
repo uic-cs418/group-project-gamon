@@ -54,11 +54,11 @@ def predictUsageOfAgeGroups(data: pd.DataFrame, input: list, confusion=False):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"Accuracy: {accuracy:.2f}")
 
-    print("Classification Report:")
-    print(classification_report(y_test, y_pred))
 
 
-    if(confusion == true):
+    if(confusion == True):
+        print("Classification Report:")
+        print(classification_report(y_test, y_pred))
         print("Confusion Matrix:")
         print(confusion_matrix(y_test, y_pred))
         print("Input data: ", input)
@@ -276,10 +276,6 @@ def SVMStatisticalAnalysis():
     for select in selected:
         predictUsageOfAgeGroups(nsduh2021.copy(), select)
 
-    predictUsageOfAgeGroups(nsduh2021.copy(), select[0], graph=False)
-    predictUsageOfAgeGroups(nsduh2021.copy(), select[-1], graph=False)
-
-
 
 # Pretty much playground code, ignore for now
 if __name__ == '__main__':
@@ -300,19 +296,17 @@ if __name__ == '__main__':
     # nsduh2018 = convertObjects(nsduh2018)
     # nsduh2018.info()
     # randomForest(nsduh2018, 'intfreq')
-    nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
-    nsduh2021 = convertObjects(nsduh2021)
-    selected = [
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income'],
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'income', 'par', 'marital'],
-     ['intfreq','sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
-      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
-     ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
-      'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
-    ]
-    for select in selected:
-        predictUsageOfAgeGroups(nsduh2021.copy(), select)
+    # nsduh2021 = pd.read_csv('datasets/Jan-25-Feb-8-2021-Core-Trends-Survey/Jan 25-Feb 8, 2021 - Core Trends Survey - CSV.csv')
+    # nsduh2021 = convertObjects(nsduh2021)
+    # selected = [
+    #  ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sns2a', 'sns2b', 'sns2c', 'sns2d', 'sns2e', 'sex'],
+    #  ['intfreq', 'web1a', 'web1b', 'web1c', 'web1d', 'web1e', 'sex', 'educ2', 'emplnw', 'marital', 'racecmb', 'party', 'partyln',
+    #   'income', 'books1', 'par', 'disa', 'birth_hisp', 'eminuse'],
+    # ]
+    # for select in selected:
+    #     predictUsageOfAgeGroups(nsduh2021.copy(), select)
+
+    SVMStatisticalAnalysis()
 
     exit()
 
